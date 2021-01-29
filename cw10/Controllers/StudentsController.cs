@@ -1,11 +1,8 @@
 ﻿using cw10.DTOs;
 using cw10.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace cw10.Controllers
 {
@@ -13,24 +10,24 @@ namespace cw10.Controllers
     [ApiController]
     public class StudentsController : ControllerBase
     {
-        private readonly Cw10Context _context;
+        private readonly Cw10Context _dbContext;
 
         public StudentsController(Cw10Context context)
         {
-            _context = context;
+            _dbContext = context;
         }
 
         [HttpGet]
         public IActionResult GetStudents()
         {
-            var res = _context.Students.ToList();
+            var res = _dbContext.Students.ToList();
             return Ok(res);
         }
 
         [HttpGet("{index}")]
         public IActionResult GetStudent(string index)
         {
-            var student = _context.Students.FirstOrDefault(s => s.IndexNumber == index);
+            var student = _dbContext.Students.FirstOrDefault(s => s.IndexNumber == index);
 
             if (student != null)
             {
@@ -42,7 +39,7 @@ namespace cw10.Controllers
         [HttpPut("{index}")]
         public IActionResult UpdateStudent(string index, UpdateStudentRequest request)
         {
-            var student = _context.Students.FirstOrDefault(s => s.IndexNumber == index);
+            var student = _dbContext.Students.FirstOrDefault(s => s.IndexNumber == index);
 
             if (student == null)
             {
@@ -57,7 +54,7 @@ namespace cw10.Controllers
             {
                 student.LastName = request.LastName;
             }
-            if (request.BirthDate != null)
+            if (request.BirthDate != null && request.BirthDate.Year != 1)
             {
                 student.BirthDate = request.BirthDate;
             }
@@ -66,7 +63,7 @@ namespace cw10.Controllers
                 student.IdEnrollment = (int)request.IdEnrollment;
             }
 
-            _context.SaveChanges();
+            _dbContext.SaveChanges();
 
             return Ok(student);
         }
@@ -74,16 +71,16 @@ namespace cw10.Controllers
         [HttpDelete("{index}")]
         public IActionResult RemoveStudent(string index)
         {
-            var student = _context.Students.FirstOrDefault(s => s.IndexNumber == index);
+            var student = _dbContext.Students.FirstOrDefault(s => s.IndexNumber == index);
 
             if (student == null)
             {
                 return NotFound("Nie ma takiego studenta");
             }
 
-            _context.Remove(student);
+            _dbContext.Remove(student);
 
-            _context.SaveChanges();
+            _dbContext.SaveChanges();
 
             return Ok("Usuwanie ukonczone");
         }
